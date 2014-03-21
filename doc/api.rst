@@ -51,6 +51,7 @@ Selecting
 
    Dataset.indexed_by
    Dataset.labeled_by
+   Dataset.reindex_like
    Dataset.rename
    Dataset.replace
    Dataset.select
@@ -88,6 +89,7 @@ Selecting
    DatasetArray.loc
    DatasetArray.indexed_by
    DatasetArray.labeled_by
+   DatasetArray.reindex_like
    DatasetArray.rename
    DatasetArray.select
    DatasetArray.unselect
