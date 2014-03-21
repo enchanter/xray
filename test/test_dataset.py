@@ -93,7 +93,6 @@ class InaccessibleVariableDataStore(backends.InMemoryDataStore):
 
 class TestDataset(TestCase):
     def test_repr(self):
-        data = create_test_data()
         expected = dedent("""
         <xray.Dataset>
         Coordinates:     (time: 20, dim1: 100, dim2: 50, dim3: 10)
