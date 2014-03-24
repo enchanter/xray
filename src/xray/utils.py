@@ -279,6 +279,16 @@ def safe_cast_to_index(array):
     return pd.Index(array, **kwargs)
 
 
+def mult_index_from_product(iterables, names=None):
+    """Like pandas.MultiIndex.from_product, but not buggy
+
+    Contains work-around for https://github.com/pydata/pandas/issues/6439
+    """
+    # note: pd.MultiIndex.from_product is new in pandas-0.13.1
+    coords = [np.asarray(v) for v in iterables]
+    index = pd.MultiIndex.from_product(coords, names=None)
+
+
 def update_safety_check(first_dict, second_dict, compat=operator.eq):
     """Check the safety of updating one dictionary with another.
 
