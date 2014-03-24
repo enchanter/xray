@@ -291,7 +291,7 @@ class TestDatasetArray(TestCase):
         self.ds['x'] = ('x', np.array(list('abcdefghij')))
         with self.assertRaises(ValueError):
             self.dv + self.dv[:5]
-        dv1, dv2 = align(self.dv, self.dv[:5])
+        dv1, dv2 = align(self.dv, self.dv[:5], join='inner')
         self.assertDSArrayEqual(dv1, self.dv[:5])
         self.assertDSArrayEqual(dv2, self.dv[:5])
 
