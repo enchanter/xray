@@ -211,6 +211,26 @@ class TestDatasetArray(TestCase):
         self.assertXArrayEqual(self.dv.variable.transpose(),
                                self.dv.transpose())
 
+    def test_dot(self):
+        actual = self.dv.dot(self.dv[0])
+        expected = self.dv.copy()
+        expected['foo'] = self.v.dot(self.v[0])
+        del expected['y']
+        expected = expected.rename('foo_dot_foo')
+        self.assertDSArrayEqual(actual, expected)
+
+        actual = self.dv.dot(self.v[0])
+        expected = expected.rename('foo_dot_other')
+        self.assertDSArrayEqual(actual, expected)
+
+        actual = self.dv.dot(self.dv)
+        expected = self.dv.copy()
+        expected['foo'] = self.v.dot(self.v)
+        del expected['x']
+        del expected['y']
+        expected = expected.rename('foo_dot_foo')
+        self.assertDSArrayEqual(actual, expected)
+
     def test_squeeze(self):
         self.assertXArrayEqual(self.dv.variable.squeeze(), self.dv.squeeze())
 

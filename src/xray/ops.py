@@ -12,16 +12,15 @@ NUM_BINARY_OPS = ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod',
 NUMPY_CONVERT_METHODS = ['choose', 'compress', 'flatten', 'item', 'itemset',
                          'nonzero', 'ravel', 'repeat', 'reshape',
                          'searchsorted', 'swapaxes', 'take', 'trace',
-                         'diagonal', 'dot']
+                         'diagonal']
 # methods which don't modify the data shape, so the result should still be
 # wrapped in an Variable/DataView
-NUMPY_UNARY_METHODS = ['argsort', 'clip', 'conj', 'conjugate', 'fill',
-                       'getfield', 'newbyteorder', 'put', 'round', 'setfield',
-                       'setflags', 'view']
+NUMPY_UNARY_METHODS = ['argsort', 'clip', 'conj', 'conjugate', 'cumprod',
+                       'cumsum', 'fill', 'getfield', 'newbyteorder', 'put',
+                       'round', 'setfield', 'setflags', 'view']
 # methods which remove an axis
-NUMPY_REDUCE_METHODS = ['all', 'any', 'argmax', 'argmin', 'cumprod',
-                        'cumsum', 'max', 'mean', 'min', 'prod', 'ptp', 'std',
-                        'sum', 'var']
+NUMPY_REDUCE_METHODS = ['all', 'any', 'argmax', 'argmin', 'max', 'mean', 'min',
+                        'prod', 'ptp', 'std', 'sum', 'var']
 
 
 def _data_method_wrapper(f):

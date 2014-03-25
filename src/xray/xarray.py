@@ -348,6 +348,63 @@ class XArray(AbstractArray):
         data = self.data.transpose(*axes)
         return type(self)(dimensions, data, self.attributes, self.encoding)
 
+    def dot(self, other):
+        """Dot product between this XArray and another XArray.
+
+        This method is similar to `numpy.ndarray.dot`, except the summation is
+        performed along shared dimensions by name. Thus `obj1.dot(obj2)` is
+        equivalent to `obj2.dot(obj1)`, except for the order of the resulting
+        dimensions.
+
+        Parameters
+        ----------
+        other : XArray
+            Another self-described array with data and dimensions.
+
+        Returns
+        -------
+        dotted : XArray
+            The dot-product of this array with `other`.
+
+        Raises
+        ------
+        ValueError
+            If there are no shared dimensions to sum over.
+
+        Notes
+        -----
+
+        If there is one shared dimension, this method uses `numpy.tensordot`.
+        If there are two or more shared dimensions, this method use
+        `numpy.einsum`.
+        """
+        shared_dims = set(self.dimensions).intersection(set(other.dimensions))
+        dimensions = [d for d in self.dimensions + other.dimensions
+                      if d not in shared_dims]
+
+        if len(shared_dims) == 0:
+            # we could just as easily do elementwise multiplication here, but
+            # it seems much more likely that users have actually made a mistake
+            raise ValueError('no shared dimensions to sum along: %r, %r' %
+                             (self.dimensions, other.dimensions))
+        elif len(shared_dims) == 1:
+            # use np.tensordot since it's faster than einsum
+            summation_dim, = shared_dims
+            self_axis = self.dimensions.index(summation_dim)
+            other_axis = other.dimensions.index(summation_dim)
+            data = np.tensordot(self.data, other.data,
+                                axes=(self_axis, other_axis))
+        else:
+            self_axes = range(self.ndim)
+            other_axes = [self.dimensions.index(dim)
+                          if dim in self.dimensions
+                          else n + self.ndim
+                          for n, dim in enumerate(other.dimensions)]
+            data = np.einsum(self.data, self_axes, other.data, other_axes)
+
+        attributes = self._math_safe_attributes(other)
+        return XArray(dimensions, data, attributes)
+
     def squeeze(self, dimension=None):
         """Return a new XArray object with squeezed data.
 
@@ -587,14 +644,26 @@ class XArray(AbstractArray):
         return concatenated
 
     def __array_wrap__(self, obj, context=None):
-        return XArray(self.dimensions, obj, self.attributes)
+        return XArray(self.dimensions, obj, self._math_safe_attributes())
+
+    def _math_safe_attributes(self, *others):
+        """Returns the math safe attributes in the intersection of this array's
+        attributes and the attributes of 0 or more other arrays
+        """
+        attributes = _math_safe_attributes(self.attributes)
+        for other in others:
+            if hasattr(other, 'attributes'):
+                # TODO: reconsider handling of conflicting attributes
+                utils.remove_incompatible_items(
+                    attributes, _math_safe_attributes(other.attributes))
+        return attributes
 
     @staticmethod
     def _unary_op(f):
         @functools.wraps(f)
         def func(self, *args, **kwargs):
             return XArray(self.dimensions, f(self.data, *args, **kwargs),
-                          _math_safe_attributes(self.attributes))
+                          self._math_safe_attributes())
         return func
 
     @staticmethod
@@ -607,11 +676,7 @@ class XArray(AbstractArray):
             new_data = (f(self_data, other_data)
                         if not reflexive
                         else f(other_data, self_data))
-            new_attr = _math_safe_attributes(self.attributes)
-            # TODO: reconsider handling of conflicting attributes
-            if hasattr(other, 'attributes'):
-                new_attr = utils.ordered_dict_intersection(
-                    new_attr, _math_safe_attributes(other.attributes))
+            new_attr = self._math_safe_attributes(other)
             return XArray(dims, new_data, new_attr)
         return func
 

@@ -348,9 +348,6 @@ class DatasetArray(AbstractArray):
     def transpose(self, *dimensions):
         """Return a new DatasetArray object with transposed dimensions.
 
-        Note: Although this operation returns a view of this array's data, it
-        is not lazy -- the data will be fully loaded.
-
         Parameters
         ----------
         *dimensions : str, optional
@@ -375,6 +372,46 @@ class DatasetArray(AbstractArray):
         ds = self.copy()
         ds[self.focus] = self.variable.transpose(*dimensions)
         return ds[self.focus]
+
+    def dot(self, other):
+        """Dot product between this DatasetArray and another DatasetArray.
+
+        This method is similar to `numpy.ndarray.dot`, except the summation is
+        performed along shared dimensions by name. Thus `obj1.dot(obj2)` is
+        equivalent to `obj2.dot(obj1)`, except for the order of the resulting
+        dimensions.
+
+        Parameters
+        ----------
+        other : DatasetArray
+            Another self-described array with data and dimensions.
+
+        Returns
+        -------
+        dotted : DatasetArray
+            The dot-product of this array with `other`.
+
+        Raises
+        ------
+        ValueError
+            If there are no shared dimensions to sum over.
+
+        Notes
+        -----
+
+        If there is one shared dimension, this method uses `numpy.tensordot`.
+        If there are two or more shared dimensions, this method use
+        `numpy.einsum`.
+        """
+        def dot(x, y):
+            return x.dot(y)
+        f = self._binary_op(dot)
+        var = f(self, other)
+        # removed summed over dimensions (move this to _binary_op?)
+        for dim in var.dataset.dimensions:
+            if dim not in var.dimensions:
+                del var[dim]
+        return var
 
     def squeeze(self, dimension=None):
         """Return a new DatasetArray object with squeezed data.

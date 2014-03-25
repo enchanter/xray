@@ -268,6 +268,30 @@ class TestXArray(TestCase, XArraySubclassTestCases):
         w3 = XArray(['b', 'c', 'd', 'a'], np.einsum('abcd->bcda', x))
         self.assertXArrayEqual(w, w3.transpose('a', 'b', 'c', 'd'))
 
+    def test_dot(self):
+        x = np.random.randn(2, 3, 4, 5)
+        y = np.random.randn(2, 3)
+        w = XArray(['a', 'b', 'c', 'd'], x)
+
+        with self.assertRaisesRegexp(ValueError, 'no shared dimensions'):
+            w.dot(XArray(['A', 'B'], y))
+
+        actual = w.dot(XArray(['A', 'b'], y))
+        expected = XArray(['a', 'c', 'd', 'A'], np.einsum('abcd,eb', x, y))
+        self.assertXArrayEqual(actual, expected)
+
+        actual = w.dot(XArray(['a', 'B'], y))
+        expected = XArray(['b', 'c', 'd', 'B'], np.einsum('abcd,ae', x, y))
+        self.assertXArrayEqual(actual, expected)
+
+        actual = w.dot(XArray(['a', 'b'], y))
+        expected = XArray(['c', 'd'], np.einsum('abcd,ab', x, y))
+        self.assertXArrayEqual(actual, expected)
+
+        actual = w.dot(w)
+        expected = XArray([], np.einsum('abcd,abcd', x, x))
+        self.assertXArrayEqual(actual, expected)
+
     def test_squeeze(self):
         v = XArray(['x', 'y'], [[1]])
         self.assertXArrayEqual(XArray([], 1), v.squeeze())
