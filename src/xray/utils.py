@@ -1,6 +1,8 @@
+# TODO: separate out these utilities into different modules based on whether
+# they are for internal or external use
 import netCDF4 as nc4
 import operator
-from collections import OrderedDict, Mapping
+from collections import OrderedDict, Mapping, MutableMapping
 from datetime import datetime
 
 import numpy as np
@@ -411,3 +413,33 @@ class Frozen(Mapping):
 
 def FrozenOrderedDict(*args, **kwargs):
     return Frozen(OrderedDict(*args, **kwargs))
+
+
+class ChainMap(MutableMapping):
+    """Partial backport of collections.ChainMap from Python>=3.3
+
+    Don't return this from any public APIs, since some of the public methods
+    for a MutableMapping are missing (they will raise a NotImplementedError)
+    """
+    def __init__(self, *maps):
+        self.maps = maps
+
+    def __getitem__(self, key):
+        for mapping in self.maps:
+            try:
+                return mapping[key]
+            except KeyError:
+                pass
+        raise KeyError(key)
+
+    def __setitem__(self, key, value):
+        self.maps[0][key] = value
+
+    def __delitem__(self, value):
+        raise NotImplementedError
+
+    def __iter__(self):
+        raise NotImplementedError
+
+    def __len__(self):
+        raise NotImplementedError

@@ -32,7 +32,7 @@ Dataset contents
 ~~~~~~~~~~~~~~~~
 
 Datasets implement the mapping interface with keys given by variable names
-and values given by ``DataArray`` objects focused on each variable name.
+and values given by ``DataArray`` objects.
 
 .. autosummary::
    :toctree: generated/
@@ -40,8 +40,11 @@ and values given by ``DataArray`` objects focused on each variable name.
    Dataset.__getitem__
    Dataset.__setitem__
    Dataset.__delitem__
+   Dataset.update
    Dataset.merge
    Dataset.copy
+   Dataset.iteritems
+   Dataset.itervalues
 
 Selecting
 ~~~~~~~~~
@@ -52,7 +55,6 @@ Selecting
    Dataset.indexed_by
    Dataset.labeled_by
    Dataset.rename
-   Dataset.replace
    Dataset.select
    Dataset.unselect
    Dataset.squeeze
