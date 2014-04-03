@@ -369,7 +369,7 @@ class DatasetArray(AbstractArray):
         numpy.transpose
         Array.transpose
         """
-        ds = self.copy()
+        ds = self.dataset.copy()
         ds[self.focus] = self.variable.transpose(*dimensions)
         return ds[self.focus]
 
