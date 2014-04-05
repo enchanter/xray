@@ -1,10 +1,9 @@
 from collections import OrderedDict
-import netCDF4 as nc4
 import numpy as np
 import pandas as pd
 
 from xray import utils, XArray
-from . import TestCase, ReturnItem
+from . import TestCase, ReturnItem, requires_netCDF4
 
 
 class TestIndexers(TestCase):
@@ -71,7 +70,9 @@ class TestIndexers(TestCase):
 
 
 class TestDatetime(TestCase):
+    @requires_netCDF4
     def test_cf_datetime(self):
+        import netCDF4 as nc4
         for num_dates, units in [
                 (np.arange(100), 'days since 2000-01-01'),
                 (np.arange(100).reshape(10, 10), 'days since 2000-01-01'),

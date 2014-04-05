@@ -10,12 +10,15 @@ from textwrap import dedent
 
 import numpy as np
 import pandas as pd
-import netCDF4 as nc4
 
 from xray import Dataset, DataArray, XArray, backends, open_dataset, utils
 
-from . import TestCase
+from . import TestCase, requires_scipy, requires_netCDF4
 
+try:
+    import netCDF4 as nc4
+except ImportError:
+    pass
 
 _test_data_path = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -393,6 +396,18 @@ class TestDataset(TestCase):
                                XArray('time', 1 + np.arange(20)))
         self.assertArrayEqual(data['time.month'].data,
                               data.variables['time'].index.month)
+        # test virtual variable math
+        self.assertArrayEqual(data['time.dayofyear'] + 1, 2 + np.arange(20))
+        self.assertArrayEqual(np.sin(data['time.dayofyear']),
+                              np.sin(1 + np.arange(20)))
+        # test slicing the virtual variable -- it should still be virtual
+        actual = data['time.dayofyear'][:10].dataset
+        expected = data.indexed_by(time=slice(10))
+        self.assertDatasetEqual(expected, actual)
+
+    @requires_netCDF4
+    def test_virutal_variables_decoded(self):
+        data = create_test_data()
         # test accessing a decoded virtual variable
         data.set_variables({'time2': ('time', np.arange(20),
                                      {'units': 'days since 2000-01-01'})},
@@ -400,14 +415,7 @@ class TestDataset(TestCase):
         self.assertXArrayEqual(data['time2.dayofyear'],
                                XArray('time', 1 + np.arange(20)))
         # test virtual variable math
-        self.assertArrayEqual(data['time.dayofyear'] + 1, 2 + np.arange(20))
         self.assertArrayEqual(data['time2.dayofyear'] + 1, 2 + np.arange(20))
-        self.assertArrayEqual(np.sin(data['time.dayofyear']),
-                              np.sin(1 + np.arange(20)))
-        # test slicing the virtual variable -- it should still be virtual
-        actual = data['time.dayofyear'][:10].dataset
-        expected = data.indexed_by(time=slice(10))
-        self.assertDatasetEqual(expected, actual)
 
     def test_setitem(self):
         # assign a variable
@@ -599,6 +607,7 @@ class DatasetIOTestCases(object):
         self.assertDatasetEqual(expected, actual)
 
 
+@requires_netCDF4
 class NetCDF4DataTest(DatasetIOTestCases, TestCase):
     def get_store(self):
         f, self.tmp_file = tempfile.mkstemp(suffix='.nc')
@@ -730,6 +739,9 @@ class NetCDF4DataTest(DatasetIOTestCases, TestCase):
         self.assertIsInstance(data['var1'].variable._data, nc4.Variable)
 
 
+# TODO: remove the dependency on netCDF4 for scipy tests
+@requires_netCDF4
+@requires_scipy
 class ScipyDataTest(DatasetIOTestCases, TestCase):
     def get_store(self):
         fobj = StringIO()

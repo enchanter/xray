@@ -156,14 +156,14 @@ For more details, see the **[full documentation][docs]** (still a work in
 progress) or the source code. **xray** is rapidly maturing, but it is still in
 its early development phase. ***Expect the API to change.***
 
-xray currently requires Python 2.7 and the python libraries `numpy>=1.8.0`,
-`scipy>=0.13`, `pandas>=0.13.1` and `netCDF4>=1.0.6`. The easiest way to get
-these installed from scratch is to use [Anaconda][anaconda]. Eventually these
-requirements will be relaxed: python libraries (other than numpy and pandas)
-will be required only for the relevant functionality, and we will support
-Python 3.
+xray requires Python 2.7 and recent versions of numpy (1.8.0 or later) and
+pandas (0.13.1 or later). Additionally, the [netCDF4-python][nc4] is required
+for reading and writing netCDF files or OpenDAP datasets; scipy is further
+required for serializing datasets to strings. We plan to eventually support
+Python 3 but aren't there yet. The easiest way to get these installed from
+scratch is to use [Anaconda][anaconda].
 
-It is not yet available on the Python package index (prior to its initial
+xray is not yet available on the Python package index (prior to its initial
 release). For now, you need to install it from source:
 
     git clone https://github.com/akleeman/xray.git

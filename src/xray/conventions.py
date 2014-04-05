@@ -1,6 +1,5 @@
 import unicodedata
 
-import netCDF4 as nc4
 import numpy as np
 from datetime import datetime
 
@@ -225,6 +224,7 @@ class CharToStringArray(object):
         return self[...]
 
     def __getitem__(self, key):
+        import netCDF4 as nc4
         # require slicing the last dimension completely
         key = utils.expanded_indexer(key, self.array.ndim)
         if key[-1] != slice(None):
@@ -236,6 +236,7 @@ def encode_cf_variable(array):
     """Converts an XArray into an XArray suitable for saving as a netCDF
     variable
     """
+    import netCDF4 as nc4
     dimensions = array.dimensions
     data = array.data
     attributes = array.attributes.copy()

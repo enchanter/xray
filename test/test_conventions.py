@@ -1,7 +1,7 @@
 import numpy as np
 
 from xray.conventions import MaskedAndScaledArray, CharToStringArray
-from . import TestCase
+from . import TestCase, requires_netCDF4
 
 
 class TestMaskedAndScaledArray(TestCase):
@@ -33,6 +33,7 @@ class TestMaskedAndScaledArray(TestCase):
         self.assertEqual(0, x[...])
 
 
+@requires_netCDF4
 class TestCharToStringArray(TestCase):
     def test(self):
         array = np.array(list('abc'))

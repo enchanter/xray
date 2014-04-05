@@ -1,4 +1,3 @@
-import netCDF4 as nc4
 import operator
 from collections import OrderedDict, Mapping
 from datetime import datetime
@@ -126,6 +125,7 @@ def decode_cf_datetime(num_dates, units, calendar=None):
     --------
     netCDF4.num2date
     """
+    import netCDF4 as nc4
     num_dates = np.asarray(num_dates).astype(float)
     if calendar is None:
         calendar = 'standard'
@@ -201,6 +201,7 @@ def encode_cf_datetime(dates, units=None, calendar=None):
     --------
     netCDF4.date2num
     """
+    import netCDF4 as nc4
     if units is None:
         units = guess_time_units(dates)
     if calendar is None:

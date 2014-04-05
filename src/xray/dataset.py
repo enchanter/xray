@@ -1,21 +1,16 @@
 import numpy as np
-import netCDF4 as nc4
 import pandas as pd
 
 from cStringIO import StringIO
 from collections import OrderedDict, Mapping
 
-import xarray
-import backends
 import conventions
 import common
 import groupby
+import xarray
 import utils
 from dataset_array import DataArray
 from utils import FrozenOrderedDict, Frozen, remap_loc_indexers
-
-date2num = nc4.date2num
-num2date = nc4.num2date
 
 
 def open_dataset(nc, decode_cf=True, *args, **kwargs):
@@ -23,6 +18,7 @@ def open_dataset(nc, decode_cf=True, *args, **kwargs):
 
     *args and **kwargs provide format specific options
     """
+    import backends
     # move this to a classmethod Dataset.open?
     # TODO: this check has the unfortunate side-effect that
     # paths to files cannot start with 'CDF'.
@@ -363,6 +359,7 @@ class Dataset(Mapping):
         """Dump dataset contents to a location on disk using the netCDF4
         package.
         """
+        import backends
         nc4_store = backends.NetCDF4DataStore(filepath, mode='w', **kwdargs)
         self.dump_to_store(nc4_store)
 
@@ -370,6 +367,7 @@ class Dataset(Mapping):
         """Serialize dataset contents to a string. The serialization creates an
         in memory netcdf version 3 string using the scipy.io.netcdf package.
         """
+        import backends
         fobj = StringIO()
         scipy_store = backends.ScipyDataStore(fobj, mode='w', **kwargs)
         self.dump_to_store(scipy_store)

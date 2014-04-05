@@ -4,6 +4,36 @@ from numpy.testing import assert_array_equal
 
 from xray import utils
 
+try:
+    import scipy
+    has_scipy = True
+except ImportError:
+    has_scipy = False
+
+try:
+    import pydap.client
+    has_pydap = True
+except ImportError:
+    has_pydap = False
+
+try:
+    import netCDF4
+    has_netCDF4 = True
+except ImportError:
+    has_netCDF4 = False
+
+
+def requires_scipy(test):
+    return test if has_scipy else unittest.skip('requires scipy')(test)
+
+
+def requires_pydap(test):
+    return test if has_pydap else unittest.skip('requires pydap.client')(test)
+
+
+def requires_netCDF4(test):
+    return test if has_netCDF4 else unittest.skip('requires netCDF4')(test)
+
 
 class TestCase(unittest.TestCase):
     def assertXArrayEqual(self, v1, v2):
